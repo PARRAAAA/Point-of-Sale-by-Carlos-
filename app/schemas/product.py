@@ -1,16 +1,17 @@
 from pydantic import BaseModel, ConfigDict
 from typing import Optional
+from decimal import Decimal
 
 
 class ProductCreate(BaseModel):
     name: str
-    price: float
+    price: Decimal
     category: Optional[str] = None
 
 
 class ProductUpdate(BaseModel):
     name: Optional[str] = None
-    price: Optional[float] = None
+    price: Optional[Decimal] = None
     category: Optional[str] = None
 
 
@@ -19,5 +20,5 @@ class ProductOut(BaseModel):
 
     id: int
     name: str
-    price: float
+    price: Decimal
     category: Optional[str] = None

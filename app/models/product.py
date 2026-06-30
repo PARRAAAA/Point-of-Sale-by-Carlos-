@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float
+from sqlalchemy import Column, Integer, String, Numeric
 from app.database import Base
 
 
@@ -7,5 +7,5 @@ class Product(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
-    price = Column(Float, nullable=False)
+    price = Column(Numeric(10,2), nullable=False)
     category = Column(String)
