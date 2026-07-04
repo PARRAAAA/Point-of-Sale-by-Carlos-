@@ -9,3 +9,4 @@ class Product(Base):
     name = Column(String, nullable=False)
     price = Column(Numeric(10,2), nullable=False)
     category = Column(String)
+    stock = Column(Integer, nullable=False, default=0)

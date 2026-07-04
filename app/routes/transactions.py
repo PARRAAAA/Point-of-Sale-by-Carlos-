@@ -42,9 +42,15 @@ def create_transaction(payload: TransactionCreate, db: Session = Depends(get_db)
             raise HTTPException(
                 status_code=404, detail=f"Product {item_data.product_id} not found"
             )
+        if product.stock < item_data.quantity:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Not enough stock for '{product.name}' (available: {product.stock})",
+            )
 
         subtotal = product.price * item_data.quantity
         total += subtotal
+        product.stock -= item_data.quantity
 
         sale_items.append(
             SaleItem(
