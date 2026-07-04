@@ -76,4 +76,4 @@ def get_transaction(transaction_id: int, db: Session = Depends(get_db)):
     transaction = db.get(Transaction, transaction_id)
     if not transaction:
         raise HTTPException(status_code=404, detail="Transaction not found")
-    return build_transaction_out(transaction).
+    return build_transaction_out(transaction)
