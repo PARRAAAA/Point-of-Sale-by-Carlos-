@@ -39,6 +39,18 @@ def test_delete_product(client):
     assert client.get("/products/").json() == []
 
 
+def test_get_product(client):
+    created = client.post("/products/", json={"name": "Leche", "price": "3.00", "category": "Lácteos"}).json()
+    res = client.get(f"/products/{created['id']}")
+    assert res.status_code == 200
+    assert res.json()["name"] == "Leche"
+
+
+def test_get_nonexistent_product(client):
+    res = client.get("/products/999")
+    assert res.status_code == 404
+
+
 def test_update_nonexistent_product(client):
     res = client.put("/products/999", json={"price": "3.50"})
     assert res.status_code == 404

@@ -29,6 +29,14 @@ def create_product(payload: ProductCreate, db: Session = Depends(get_db)):
     return product
 
 
+@router.get("/{product_id}", response_model=ProductOut)
+def get_product(product_id: int, db: Session = Depends(get_db)):
+    product = db.get(Product, product_id)
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    return product
+
+
 @router.put("/{product_id}", response_model=ProductOut)
 def update_product(
     product_id: int, payload: ProductUpdate, db: Session = Depends(get_db)

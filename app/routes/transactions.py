@@ -71,9 +71,7 @@ def create_transaction(payload: TransactionCreate, db: Session = Depends(get_db)
 
 @router.get("/", response_model=List[TransactionOut])
 def list_transactions(db: Session = Depends(get_db)):
-    transactions = (
-        db.query(Transaction).order_by(Transaction.created_at.desc()).all()
-    )
+    transactions = db.query(Transaction).order_by(Transaction.created_at.desc()).all()
     return [build_transaction_out(t) for t in transactions]
 
 
@@ -81,5 +79,5 @@ def list_transactions(db: Session = Depends(get_db)):
 def get_transaction(transaction_id: int, db: Session = Depends(get_db)):
     transaction = db.get(Transaction, transaction_id)
     if not transaction:
-        raise HTTPException(status_code=404, detail="Transaction not found")
+        raise HTTPException(status_code=404, detail="Transaction no encontrada")
     return build_transaction_out(transaction)
