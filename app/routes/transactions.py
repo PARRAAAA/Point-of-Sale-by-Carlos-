@@ -5,7 +5,12 @@ from typing import List
 from app.database import get_db
 from app.models.sale import Transaction, SaleItem, Payment
 from app.models.product import Product
-from app.schemas.transaction import TransactionCreate, TransactionOut, SaleItemOut, PaymentOut
+from app.schemas.transaction import (
+    TransactionCreate,
+    TransactionOut,
+    SaleItemOut,
+    PaymentOut,
+)
 
 router = APIRouter(prefix="/transactions", tags=["transactions"])
 
