@@ -1,29 +1,35 @@
 #!/usr/bin/env bash
 
 SESSION="pos"
+DIR="$(pwd)"
 
-# If the session already exists, attach to it
+# If session already exists, attach/switch to it
 if tmux has-session -t "$SESSION" 2>/dev/null; then
-    exec tmux attach -t "$SESSION"
+    if [ -n "$TMUX" ]; then
+        exec tmux switch-client -t "$SESSION"
+    else
+        exec tmux attach -t "$SESSION"
+    fi
 fi
 
-tmux new-session -d -s "$SESSION" -c "$(pwd)"
+# Create new tmux session
+tmux new-session -d -s "$SESSION" -c "$DIR"
 
-# Left pane: Neovim
-tmux send-keys -t "$SESSION" "nvim ." C-m
+# Left pane: Docker compose detached + live logs
+tmux send-keys -t "$SESSION:0.0" "docker compose up -d && docker compose logs -f" C-m
 
-# Right pane
-tmux split-window -h -t "$SESSION" -c "$(pwd)"
+# Right pane: free terminal in project folder
+tmux split-window -h -t "$SESSION:0.0" -c "$DIR"
 
-# Top-right: Docker
-tmux send-keys -t "$SESSION:0.1" "docker compose up" C-m
+# Make both panes 50/50
+tmux select-layout -t "$SESSION" even-horizontal
 
-# Bottom-right
-tmux split-window -v -t "$SESSION:0.1" -c "$(pwd)"
+# Focus right pane
+tmux select-pane -t "$SESSION:0.1"
 
-# Bottom-right: FastAPI
-tmux send-keys -t "$SESSION:0.2" "uv run fastapi dev app/main.py" C-m
-
-tmux select-layout -t "$SESSION" main-vertical
-
-tmux attach -t "$SESSION"
+# Attach/switch
+if [ -n "$TMUX" ]; then
+    exec tmux switch-client -t "$SESSION"
+else
+    exec tmux attach -t "$SESSION"
+fi

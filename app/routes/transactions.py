@@ -3,9 +3,9 @@ from sqlalchemy.orm import Session
 from typing import List
 
 from app.database import get_db
-from app.models.sale import Transaction, SaleItem
+from app.models.sale import Transaction, SaleItem, Payment
 from app.models.product import Product
-from app.schemas.transaction import TransactionCreate, TransactionOut, SaleItemOut
+from app.schemas.transaction import TransactionCreate, TransactionOut, SaleItemOut, PaymentOut
 
 router = APIRouter(prefix="/transactions", tags=["transactions"])
 
@@ -28,6 +28,7 @@ def build_transaction_out(transaction: Transaction) -> TransactionOut:
         total=transaction.total,
         created_at=transaction.created_at,
         items=items,
+        payment=PaymentOut.model_validate(transaction.payment),
     )
 
 
@@ -61,8 +62,25 @@ def create_transaction(payload: TransactionCreate, db: Session = Depends(get_db)
             )
         )
 
+    if payload.payment.amount_tendered < total:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Amount tendered ({payload.payment.amount_tendered}) is less than total ({total})",
+        )
+
+    change_given = payload.payment.amount_tendered - total
+
     transaction = Transaction(total=total, items=sale_items)
     db.add(transaction)
+    db.flush()  # get transaction.id before creating Payment
+
+    payment = Payment(
+        transaction_id=transaction.id,
+        method=payload.payment.method,
+        amount_tendered=payload.payment.amount_tendered,
+        change_given=change_given,
+    )
+    db.add(payment)
     db.commit()
     db.refresh(transaction)
 

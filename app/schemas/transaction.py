@@ -1,7 +1,27 @@
+import enum
 from pydantic import BaseModel, ConfigDict
 from decimal import Decimal
 from datetime import datetime
 from typing import List
+
+
+class PaymentMethod(str, enum.Enum):
+    cash = "cash"
+    card = "card"
+
+
+class PaymentCreate(BaseModel):
+    method: PaymentMethod
+    amount_tendered: Decimal
+
+
+class PaymentOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    method: PaymentMethod
+    amount_tendered: Decimal
+    change_given: Decimal
 
 
 class SaleItemCreate(BaseModel):
@@ -11,6 +31,7 @@ class SaleItemCreate(BaseModel):
 
 class TransactionCreate(BaseModel):
     items: List[SaleItemCreate]
+    payment: PaymentCreate
 
 
 class SaleItemOut(BaseModel):
@@ -32,3 +53,4 @@ class TransactionOut(BaseModel):
     total: Decimal
     created_at: datetime
     items: List[SaleItemOut]
+    payment: PaymentOut
