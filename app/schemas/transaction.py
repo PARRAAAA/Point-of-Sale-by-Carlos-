@@ -49,7 +49,6 @@ class SaleItemOut(BaseModel):
     quantity: int
     unit_price: Decimal
     subtotal: Decimal
-    status: TransactionStatus
     created_at: datetime
 
 
