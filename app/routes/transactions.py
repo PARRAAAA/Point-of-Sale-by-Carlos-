@@ -11,6 +11,7 @@ from app.models.sale import (
     TransactionStatus as ModelTransactionStatus,
 )
 from app.models.product import Product
+from app.models.sale import TransactionStatus as ModelTransactionStatus
 from app.schemas.transaction import (
     TransactionCreate,
     TransactionOut,
@@ -132,8 +133,12 @@ def refund_transaction(
 
     for item in transaction.items:
         product = db.get(Product, item.product_id)
-        if product:
-            product.stock += item.quantity
+        if not product:
+            raise HTTPException(
+                status_code=409,
+                detail=f"Product {item.product_id} no longer exists, cannot restore stock",
+            )
+        product.stock += item.quantity
 
     refund = Refund(transaction_id=transaction.id, reason=payload.reason)
     transaction.status = ModelTransactionStatus.refunded
